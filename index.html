@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Palette Generator — Image → Color Palette → Harmonies → Office & Power BI Themes</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header>
+  <div class="wrap title">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l2.2 4.46L19 7.27l-3.5 3.41.83 4.86L12 13.77l-4.33 1.77.83-4.86L5 7.27l4.8-.81L12 2z" fill="#6ea8fe"/></svg>
+      <div>
+        <div style="font-weight:800; font-size:18px">Palette Generator</div>
+        <div class="badge">Upload an image → extract palette → harmonies → export themes</div>
+      </div>
+    </div>
+    <button class="theme-toggle" id="themeToggle">
+      <svg class="sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+      </svg>
+      <svg class="moon-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+      </svg>
+      <span class="theme-text">Light Mode</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <section class="card" id="left">
+    <div class="body">
+      <h2>
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+        </svg>
+        1) Upload an image
+      </h2>
+      <div class="drop" id="drop">
+        <div>
+          <div style="font-weight:700; font-size:16px; margin-bottom:6px">Drag & drop or click to upload</div>
+          <div class="hint">JPEG, PNG, WebP. Processed locally in your browser. You can also paste (Cmd/Ctrl+V).</div>
+        </div>
+      </div>
+      <input id="file" type="file" accept="image/*" hidden>
+
+      <div id="imgWrap" style="display:none; margin-top:14px" class="grid">
+        <img id="img" class="image-preview" alt="preview"/>
+      </div>
+
+      <h2 style="margin-top:22px">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
+        </svg>
+        2) Extract palette
+      </h2>
+      
+      <div class="algorithm-options">
+        <h4>Extraction Algorithm</h4>
+        <div class="algorithm-grid">
+          <div class="algorithm-option active" data-algorithm="kmeans">K-Means</div>
+          <div class="algorithm-option" data-algorithm="median">Median Cut</div>
+          <div class="algorithm-option" data-algorithm="kmeansplus">K-Means++</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Number of colors</label>
+          <input id="k" type="number" min="3" max="12" value="8"/>
+        </div>
+        <div>
+          <label>Palette style</label>
+          <select id="style">
+            <option value="auto">Auto (clustered)</option>
+            <option value="balanced">Balanced</option>
+            <option value="vibrant">Vibrant</option>
+            <option value="muted">Muted</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="bar" style="margin-top:12px">
+        <button class="btn" id="extractBtn">Extract Palette</button>
+        <div class="grow"></div>
+        <button class="btn" id="copyAll" disabled>Copy HEX list</button>
+        <button class="btn" id="downloadPNG" disabled>Download palette PNG</button>
+      </div>
+
+      <div id="swatches" class="swatches" style="margin-top:14px"></div>
+
+      <div class="palette-controls">
+        <button class="btn" id="addColorBtn">Add Color</button>
+        <button class="btn" id="sortByHueBtn">Sort by Hue</button>
+        <button class="btn" id="sortBySaturationBtn">Sort by Saturation</button>
+        <button class="btn" id="sortByLightnessBtn">Sort by Lightness</button>
+        <button class="btn" id="randomizeBtn">Randomize</button>
+      </div>
+
+      <h2 style="margin-top:22px">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+        </svg>
+        3) Harmonies
+      </h2>
+      <div class="row">
+        <div>
+          <label>Base color (from palette)</label>
+          <select id="baseIdx"></select>
+        </div>
+        <div>
+          <label>Harmony</label>
+          <select id="harmony">
+            <option value="none">None</option>
+            <option value="complementary">Complementary</option>
+            <option value="analogous">Analogous</option>
+            <option value="triadic">Triadic</option>
+            <option value="tetradic">Tetradic</option>
+            <option value="monochrome">Monochrome</option>
+          </select>
+        </div>
+      </div>
+      <div class="bar" style="margin-top:10px">
+        <label class="hint"><input type="checkbox" id="useHarmony"> Use harmony as accents instead of raw palette</label>
+      </div>
+      <div id="harmonyWrap" class="swatches" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <aside class="card" id="right">
+    <div class="body">
+      <h2>
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+        </svg>
+        4) Build & preview themes
+      </h2>
+      <div class="row">
+        <div>
+          <label>Theme mode</label>
+          <select id="mode">
+            <option value="light">Light</option>
+            <option value="dark" selected>Dark</option>
+          </select>
+        </div>
+        <div>
+          <label>Background strength</label>
+          <select id="bgStrength">
+            <option value="soft">Soft</option>
+            <option value="standard" selected>Standard</option>
+            <option value="bold">Bold</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="preview" style="margin-top:12px" id="preview"></div>
+
+      <div id="roles" class="palette-roles" style="margin-top:14px"></div>
+
+      <div class="grid" style="margin-top:16px">
+        <button class="btn ok" id="downloadPBI" disabled>Power BI Theme (.json)</button>
+        <button class="btn" id="downloadOffice" disabled>Office Theme (.thmx)</button>
+        <button class="btn warn" id="downloadCSS" disabled>CSS Variables (.css)</button>
+        <button class="btn" id="downloadTailwind" disabled>Tailwind Config (.js)</button>
+      </div>
+
+      <div class="bar" style="margin-top:12px">
+        <button class="btn" id="downloadFigma" disabled>Figma Tokens (.json)</button>
+        <button class="btn" id="downloadSketch" disabled>Sketch Colors (.sketchpalette)</button>
+        <div class="grow"></div>
+        <button class="btn" id="dlBoth">Quick export: Light & Dark</button>
+      </div>
+
+      <div class="bar" style="margin-top:12px">
+        <button class="btn ghost" id="sampleBtn">Use sample image</button>
+        <div class="grow"></div>
+        <span class="hint">Export formats are optimized for each application</span>
+      </div>
+
+      <h2 style="margin-top:22px">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        5) Diagnostics & Tests
+      </h2>
+      <div class="bar">
+        <button class="btn" id="runTests">Run self‑tests</button>
+        <div class="grow"></div>
+        <span class="hint">Runs offline. No external integrations.</span>
+      </div>
+      <div id="testResults" class="tests" style="margin-top:8px"></div>
+
+      <p class="hint" style="margin-top:14px">Power BI uses the accent colors for visuals, with background and text set by the selected mode. Office XML provides a color scheme for Excel, PowerPoint and Word. A full .thmx package is out of scope here, but can be added.</p>
+    </div>
+  </aside>
+</main>
+
+<div class="footer">Built client‑side. No uploads, no tracking. ©</div>
+
+<canvas id="hiddenCanvas" style="display:none"></canvas>
+<div id="toast" class="toast" style="display:none"></div>
+
+<!-- Color Editor Modal -->
+<div class="modal-overlay" id="colorModal">
+  <div class="modal">
+    <h3>Edit Color</h3>
+    
+    <div class="color-preview-section">
+      <div class="color-preview" id="colorPreview"></div>
+      <div class="color-info">
+        <div class="current-color">Current: <span id="currentColorText">#000000</span></div>
+        <div class="new-color">New: <span id="newColorText">#000000</span></div>
+      </div>
+    </div>
+    
+    <div class="color-wheel-section">
+      <h4>Color Wheel</h4>
+      <div class="color-wheel-container">
+        <canvas id="colorWheel" width="200" height="200"></canvas>
+        <div class="wheel-cursor" id="wheelCursor"></div>
+      </div>
+      <div class="wheel-controls">
+        <div class="control-group">
+          <label>Hue</label>
+          <input type="range" id="hueSlider" min="0" max="360" value="0">
+          <span id="hueValue">0°</span>
+        </div>
+        <div class="control-group">
+          <label>Saturation</label>
+          <input type="range" id="saturationSlider" min="0" max="100" value="100">
+          <span id="saturationValue">100%</span>
+        </div>
+        <div class="control-group">
+          <label>Lightness</label>
+          <input type="range" id="lightnessSlider" min="0" max="100" value="50">
+          <span id="lightnessValue">50%</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label>HEX Color</label>
+      <input type="text" id="hexInput" placeholder="#000000" maxlength="7">
+    </div>
+    <div class="form-group">
+      <label>RGB Values</label>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+        <input type="number" id="redInput" placeholder="R" min="0" max="255">
+        <input type="number" id="greenInput" placeholder="G" min="0" max="255">
+        <input type="number" id="blueInput" placeholder="B" min="0" max="255">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn" id="cancelEdit">Cancel</button>
+      <button class="btn ok" id="saveEdit">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
