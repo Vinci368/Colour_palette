@@ -1908,7 +1908,7 @@ downloadTailwindBtn.addEventListener('click', ()=> theme && download('tailwind-c
 downloadFigmaBtn.addEventListener('click', ()=> theme && download('figma-tokens.json', toFigmaTokens(theme)) );
 downloadSketchBtn.addEventListener('click', ()=> theme && download('sketch-colors.json', toSketchColors(theme)) );
 
-dlBothBtn.addEventListener('click', ()=>{
+dlBothBtn.addEventListener('click', async ()=>{
   if(!currentPalette.length){ 
     showToast('No palette','Upload and extract a palette first.','warn'); 
     return; 
@@ -2003,7 +2003,7 @@ function runTests(){
       const t=deriveTheme(); 
       const pbi = JSON.parse(toPowerBITheme(t)); 
       logCase('Power BI JSON parse', !!pbi && Array.isArray(pbi.dataColors)); 
-      const xml=toOfficeColorXML(t); 
+      const xml=toOfficeTheme(t); 
       logCase('Office XML contains accents', /accent1|accent6/.test(xml)); 
       if(all) showToast('Tests finished','Some tests async; see results above.','ok'); 
       else showToast('Tests finished with failures','Review details above.','warn'); 
