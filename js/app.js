@@ -66,6 +66,83 @@ themeToggle.addEventListener('click', () => {
 // Initialize theme on load
 initTheme();
 
+// Detect file upload capabilities for corporate environments
+function detectFileUploadCapabilities() {
+  const capabilities = {
+    fileInput: false,
+    dragAndDrop: false,
+    paste: false,
+    fileReader: false
+  };
+  
+  try {
+    // Test file input
+    const testInput = document.createElement('input');
+    testInput.type = 'file';
+    capabilities.fileInput = testInput.type === 'file';
+  } catch (e) {
+    capabilities.fileInput = false;
+  }
+  
+  try {
+    // Test FileReader
+    const testReader = new FileReader();
+    capabilities.fileReader = !!testReader;
+  } catch (e) {
+    capabilities.fileReader = false;
+  }
+  
+  try {
+    // Test drag and drop
+    const testDiv = document.createElement('div');
+    testDiv.addEventListener('dragover', () => {});
+    capabilities.dragAndDrop = true;
+  } catch (e) {
+    capabilities.dragAndDrop = false;
+  }
+  
+  try {
+    // Test clipboard access
+    if (navigator.clipboard && navigator.clipboard.read) {
+      capabilities.paste = true;
+    } else if (window.ClipboardEvent) {
+      capabilities.paste = true;
+    }
+  } catch (e) {
+    capabilities.paste = false;
+  }
+  
+  // Show appropriate messaging based on capabilities
+  if (!capabilities.fileInput || !capabilities.fileReader) {
+    showToast('Corporate Environment Detected', 'File uploads may be restricted. Sample images are available below.', 'warn');
+    
+    // Highlight the sample images section
+    const sampleSection = document.querySelector('.sample-images-section');
+    if (sampleSection) {
+      sampleSection.style.borderColor = '#f59e0b';
+      sampleSection.style.borderWidth = '2px';
+    }
+    
+    // Update the upload message
+    const dropArea = document.querySelector('#drop');
+    if (dropArea) {
+      const hint = dropArea.querySelector('.hint');
+      if (hint) {
+        hint.innerHTML = 'File uploads may be blocked in corporate environments. <strong>Try the sample images below instead.</strong>';
+        hint.style.color = '#f59e0b';
+      }
+    }
+  }
+  
+  return capabilities;
+}
+
+// Run capability detection after DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  // Wait a bit for everything to load
+  setTimeout(detectFileUploadCapabilities, 1000);
+});
+
 window.addEventListener('error', (e)=>{ 
   showToast('Runtime error', e.message || 'Unknown error', 'err'); 
 });
@@ -135,15 +212,6 @@ const imgWrap = $('#imgWrap');
 ['dragenter','dragover'].forEach(evt=>drop.addEventListener(evt, e=>{e.preventDefault(); drop.classList.add('drag')}));
 ['dragleave','drop'].forEach(evt=>drop.addEventListener(evt, e=>{e.preventDefault(); drop.classList.remove('drag')}));
 drop.addEventListener('click',()=>fileInput.click());
-drop.addEventListener('drop', e=>{ 
-  const f = e.dataTransfer.files?.[0]; 
-  if(f) handleFile(f); 
-});
-
-fileInput.addEventListener('change', e=>{ 
-  const f = e.target.files?.[0]; 
-  if(f) handleFile(f); 
-});
 
 function handleFile(f){ 
   try{ 
@@ -153,11 +221,62 @@ function handleFile(f){
     img.onload = ()=>{ 
       URL.revokeObjectURL(url); 
       imgWrap.style.display='block'; 
+      showToast('Image loaded', 'Image uploaded successfully', 'ok');
     }; 
+    img.onerror = () => {
+      showToast('Image load failed', 'Could not load the image. This might be due to corporate security restrictions.', 'err');
+      // Show the sample images section more prominently
+      const sampleSection = document.querySelector('.sample-images-section');
+      if (sampleSection) {
+        sampleSection.style.borderColor = '#ef4444';
+        sampleSection.style.animation = 'pulse 2s infinite';
+      }
+    };
   }catch(err){ 
     showToast('Image load failed', err.message||String(err), 'err'); 
+    // Suggest using sample images instead
+    showToast('Try sample images', 'File upload blocked. Use the sample images below instead.', 'warn');
   } 
 }
+
+// Enhanced error handling for file input
+fileInput.addEventListener('change', e=>{ 
+  try {
+    const f = e.target.files?.[0]; 
+    if(f) handleFile(f); 
+  } catch (err) {
+    showToast('File access blocked', 'Your corporate environment is blocking file access. Try the sample images instead.', 'warn');
+    // Clear the file input
+    e.target.value = '';
+  }
+});
+
+// Enhanced drag and drop with better error handling
+drop.addEventListener('drop', e=>{ 
+  try {
+    e.preventDefault(); 
+    drop.classList.remove('drag');
+    const f = e.dataTransfer.files?.[0]; 
+    if(f) handleFile(f); 
+  } catch (err) {
+    showToast('Drag & drop blocked', 'Drag and drop is not available in your environment. Try clicking to upload or use sample images.', 'warn');
+  }
+});
+
+// Add paste event with error handling
+window.addEventListener('paste', e=>{ 
+  try {
+    if(!e.clipboardData) return; 
+    for(const item of e.clipboardData.items){ 
+      if(item.type.startsWith('image/')){ 
+        const f=item.getAsFile(); 
+        if(f) handleFile(f); 
+      } 
+    } 
+  } catch (err) {
+    showToast('Paste blocked', 'Pasting images is not available in your environment. Try the sample images instead.', 'warn');
+  }
+});
 
 // synthetic sample
 function makeSampleDataURL(){ 
@@ -180,6 +299,107 @@ function makeSampleDataURL(){
   ctx.fillText('Palette Generator Sample', 18,400); 
   return c.toDataURL('image/png'); 
 }
+
+// Enhanced sample images for corporate users
+function loadSampleImage(type) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 640;
+  canvas.height = 420;
+  const ctx = canvas.getContext('2d');
+  
+  switch(type) {
+    case 'nature':
+      // Nature-inspired gradient with greens, blues, and purples
+      const natureGrad = ctx.createLinearGradient(0, 0, 640, 420);
+      natureGrad.addColorStop(0, '#10b981');   // Green
+      natureGrad.addColorStop(0.3, '#3b82f6'); // Blue
+      natureGrad.addColorStop(0.7, '#8b5cf6'); // Purple
+      natureGrad.addColorStop(1, '#06b6d4');   // Cyan
+      ctx.fillStyle = natureGrad;
+      ctx.fillRect(0, 0, 640, 420);
+      
+      // Add some organic shapes
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.3)';
+      ctx.beginPath();
+      ctx.arc(100, 100, 80, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.fillStyle = 'rgba(139, 92, 246, 0.3)';
+      ctx.beginPath();
+      ctx.arc(500, 300, 60, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+      
+    case 'abstract':
+      // Abstract geometric pattern
+      const colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
+      for (let i = 0; i < 5; i++) {
+        ctx.fillStyle = colors[i];
+        ctx.fillRect(i * 128, 0, 128, 84);
+        ctx.fillRect(i * 128, 84, 128, 84);
+        ctx.fillRect(i * 128, 168, 128, 84);
+        ctx.fillRect(i * 128, 252, 128, 84);
+        ctx.fillRect(i * 128, 336, 128, 84);
+      }
+      break;
+      
+    case 'minimal':
+      // Minimal grayscale composition
+      const grayGrad = ctx.createRadialGradient(320, 210, 0, 320, 210, 300);
+      grayGrad.addColorStop(0, '#6b7280');
+      grayGrad.addColorStop(0.5, '#9ca3af');
+      grayGrad.addColorStop(1, '#d1d5db');
+      ctx.fillStyle = grayGrad;
+      ctx.fillRect(0, 0, 640, 420);
+      
+      // Add minimal geometric elements
+      ctx.fillStyle = '#374151';
+      ctx.fillRect(50, 50, 100, 100);
+      ctx.fillRect(490, 270, 100, 100);
+      break;
+      
+    case 'vibrant':
+      // Vibrant color explosion
+      const vibrantGrad = ctx.createConicGradient(0, 320, 210);
+      vibrantGrad.addColorStop(0, '#ec4899');   // Pink
+      vibrantGrad.addColorStop(0.25, '#8b5cf6'); // Purple
+      vibrantGrad.addColorStop(0.5, '#06b6d4');  // Cyan
+      vibrantGrad.addColorStop(0.75, '#10b981');  // Green
+      vibrantGrad.addColorStop(1, '#ec4899');     // Back to pink
+      ctx.fillStyle = vibrantGrad;
+      ctx.fillRect(0, 0, 640, 420);
+      
+      // Add some vibrant circles
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      for (let i = 0; i < 8; i++) {
+        const x = 100 + Math.cos(i * Math.PI / 4) * 200;
+        const y = 210 + Math.sin(i * Math.PI / 4) * 150;
+        ctx.beginPath();
+        ctx.arc(x, y, 30, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      break;
+      
+    default:
+      return makeSampleDataURL();
+  }
+  
+  // Add title
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 24px Inter, system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${type.charAt(0).toUpperCase() + type.slice(1)} Sample`, 320, 50);
+  
+  // Load the generated image
+  img.src = canvas.toDataURL('image/png');
+  imgWrap.style.display = 'block';
+  
+  // Show success message
+  showToast('Sample loaded', `${type.charAt(0).toUpperCase() + type.slice(1)} sample image loaded successfully`, 'ok');
+}
+
+// Make the function globally accessible
+window.loadSampleImage = loadSampleImage;
 
 $('#sampleBtn').addEventListener('click', ()=>{ 
   img.src = makeSampleDataURL(); 
