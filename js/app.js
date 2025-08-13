@@ -1511,6 +1511,267 @@ function toOfficeTheme(t){
   return themeXml;
 }
 
+// Enhanced Office theme generator that creates a proper .thmx file
+async function toOfficeThemeEnhanced(t) {
+  try {
+    // Create the main theme XML
+    const themeXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="Palette Generator Theme">
+  <a:themeElements>
+    <a:clrScheme name="Palette Generator Colors">
+      <a:dk1><a:srgbClr val="000000"/></a:dk1>
+      <a:lt1><a:srgbClr val="FFFFFF"/></a:lt1>
+      <a:dk2><a:srgbClr val="${hex(...t.background).replace('#','')}"/></a:dk2>
+      <a:lt2><a:srgbClr val="${hex(...adjustLuma(t.background, 1.4)).replace('#','')}"/></a:lt2>
+      <a:accent1><a:srgbClr val="${hex(...(t.accents[0] || [0,112,192])).replace('#','')}"/></a:accent1>
+      <a:accent2><a:srgbClr val="${hex(...(t.accents[1] || [112,48,160])).replace('#','')}"/></a:accent2>
+      <a:accent3><a:srgbClr val="${hex(...(t.accents[2] || [255,192,0])).replace('#','')}"/></a:accent3>
+      <a:accent4><a:srgbClr val="${hex(...(t.accents[3] || [255,0,0])).replace('#','')}"/></a:accent4>
+      <a:accent5><a:srgbClr val="${hex(...(t.accents[4] || [112,173,71])).replace('#','')}"/></a:accent5>
+      <a:accent6><a:srgbClr val="${hex(...(t.accents[5] || [0,176,240])).replace('#','')}"/></a:accent6>
+      <a:hlink><a:srgbClr val="${hex(...t.hyperlink).replace('#','')}"/></a:hlink>
+      <a:folHlink><a:srgbClr val="${hex(...t.followed).replace('#','')}"/></a:folHlink>
+    </a:clrScheme>
+    <a:fontScheme name="Palette Generator Fonts">
+      <a:majorFont>
+        <a:latin typeface="Calibri"/>
+        <a:ea typeface=""/>
+        <a:cs typeface=""/>
+      </a:majorFont>
+      <a:minorFont>
+        <a:latin typeface="Calibri"/>
+        <a:ea typeface=""/>
+        <a:cs typeface=""/>
+      </a:minorFont>
+    </a:fontScheme>
+    <a:fmtScheme name="Palette Generator Formats">
+      <a:fillStyleLst>
+        <a:solidFill>
+          <a:schemeClr val="phClr"/>
+        </a:solidFill>
+        <a:gradFill rotWithShape="1">
+          <a:gsLst>
+            <a:gs pos="0">
+              <a:schemeClr val="phClr">
+                <a:tint val="50000"/>
+                <a:satMod val="300000"/>
+              </a:schemeClr>
+            </a:gs>
+            <a:gs pos="35000">
+              <a:schemeClr val="phClr">
+                <a:tint val="37000"/>
+                <a:satMod val="300000"/>
+              </a:schemeClr>
+            </a:gs>
+            <a:gs pos="100000">
+              <a:schemeClr val="phClr">
+                <a:tint val="15000"/>
+                <a:satMod val="350000"/>
+              </a:schemeClr>
+            </a:gs>
+          </a:gsLst>
+          <a:lin ang="16200000" scaled="1"/>
+        </a:gradFill>
+        <a:gradFill rotWithShape="1">
+          <a:gsLst>
+            <a:gs pos="0">
+              <a:schemeClr val="phClr">
+                <a:shade val="51000"/>
+                <a:satMod val="130000"/>
+              </a:schemeClr>
+            </a:gs>
+            <a:gs pos="80000">
+              <a:schemeClr val="phClr">
+                <a:shade val="93000"/>
+                <a:satMod val="130000"/>
+              </a:schemeClr>
+            </a:gs>
+            <a:gs pos="100000">
+              <a:schemeClr val="phClr">
+                <a:shade val="94000"/>
+                <a:satMod val="135000"/>
+              </a:schemeClr>
+            </a:gs>
+          </a:gsLst>
+          <a:lin ang="16200000" scaled="0"/>
+        </a:gradFill>
+      </a:fillStyleLst>
+      <a:lnStyleLst>
+        <a:ln w="9525" cap="flat" cmpd="sng" algn="ctr">
+          <a:solidFill>
+            <a:schemeClr val="phClr">
+              <a:shade val="95000"/>
+              <a:satMod val="105000"/>
+            </a:schemeClr>
+          </a:solidFill>
+          <a:prstDash val="solid"/>
+        </a:ln>
+        <a:ln w="25400" cap="flat" cmpd="sng" algn="ctr">
+          <a:solidFill>
+            <a:schemeClr val="phClr"/>
+          </a:solidFill>
+          <a:prstDash val="solid"/>
+        </a:ln>
+        <a:ln w="38100" cap="flat" cmpd="sng" algn="ctr">
+          <a:solidFill>
+            <a:schemeClr val="phClr"/>
+          </a:solidFill>
+          <a:prstDash val="solid"/>
+        </a:ln>
+      </a:lnStyleLst>
+      <a:effectStyleLst>
+        <a:effectStyle>
+          <a:effectLst>
+            <a:outerShdw blurRad="40000" dist="20000" dir="5400000" rotWithShape="0">
+              <a:srgbClr val="000000">
+                <a:alpha val="38000"/>
+              </a:srgbClr>
+            </a:outerShdw>
+          </a:effectLst>
+        </a:effectStyle>
+        <a:effectStyle>
+          <a:effectLst>
+            <a:outerShdw blurRad="40000" dist="23000" dir="5400000" rotWithShape="0">
+              <a:srgbClr val="000000">
+                <a:alpha val="35000"/>
+              </a:srgbClr>
+            </a:outerShdw>
+          </a:effectLst>
+        </a:effectStyle>
+        <a:effectStyle>
+          <a:effectLst>
+            <a:outerShdw blurRad="40000" dist="23000" dir="5400000" rotWithShape="0">
+              <a:srgbClr val="000000">
+                <a:alpha val="35000"/>
+              </a:srgbClr>
+            </a:outerShdw>
+            <a:prstTransf>
+              <a:xfrm>
+                <a:off x="0" y="0"/>
+                <a:ext cx="0" cy="0"/>
+              </a:xfrm>
+            </a:prstTransf>
+          </a:effectLst>
+        </a:effectStyle>
+      </a:effectStyleLst>
+      <a:bgFillStyleLst>
+        <a:solidFill>
+          <a:schemeClr val="phClr"/>
+        </a:solidFill>
+        <a:gradFill rotWithShape="1">
+          <a:gsLst>
+            <a:gs pos="0">
+              <a:schemeClr val="phClr">
+                <a:tint val="40000"/>
+                <a:satMod val="350000"/>
+              </a:schemeClr>
+            </a:gs>
+            <a:gs pos="40000">
+              <a:schemeClr val="phClr">
+                <a:tint val="45000"/>
+                <a:satMod val="350000"/>
+                <a:shade val="99000"/>
+              </a:schemeClr>
+            </a:gs>
+            <a:gs pos="100000">
+              <a:schemeClr val="phClr">
+                <a:shade val="20000"/>
+                <a:satMod val="255000"/>
+              </a:schemeClr>
+            </a:gs>
+          </a:gsLst>
+          <a:path path="circle">
+            <a:fillToRect l="50000" t="-80000" r="50000" b="180000"/>
+          </a:path>
+        </a:gradFill>
+        <a:gradFill rotWithShape="1">
+          <a:gsLst>
+            <a:gs pos="0">
+              <a:schemeClr val="phClr">
+                <a:tint val="80000"/>
+                <a:satMod val="300000"/>
+              </a:schemeClr>
+            </a:gs>
+            <a:gs pos="100000">
+              <a:schemeClr val="phClr">
+                <a:shade val="30000"/>
+                <a:satMod val="200000"/>
+              </a:schemeClr>
+            </a:gs>
+          </a:gsLst>
+          <a:path path="circle">
+            <a:fillToRect l="50000" t="50000" r="50000" b="50000"/>
+          </a:path>
+        </a:gradFill>
+      </a:bgFillStyleLst>
+    </a:fmtScheme>
+  </a:themeElements>
+  <a:objectDefaults/>
+  <a:extraClrSchemeLst/>
+</a:theme>`;
+
+    // Create the [Content_Types].xml file
+    const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Override PartName="/theme/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>
+</Types>`;
+
+    // Create the _rels/.rels file
+    const relsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="theme/theme/theme1.xml"/>
+</Relationships>`;
+
+    // Create the theme/_rels/theme1.xml.rels file
+    const themeRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="theme1.xml"/>
+</Relationships>`;
+
+    // Use JSZip to create the .thmx file
+    if (typeof JSZip !== 'undefined') {
+      const zip = new JSZip();
+      
+      // Add the main theme file
+      zip.file("theme/theme/theme1.xml", themeXml);
+      
+      // Add content types
+      zip.file("[Content_Types].xml", contentTypesXml);
+      
+      // Add relationships
+      zip.file("_rels/.rels", relsXml);
+      zip.file("theme/theme/_rels/theme1.xml.rels", themeRelsXml);
+      
+      // Generate the ZIP file
+      const zipBlob = await zip.generateAsync({type: "blob"});
+      return zipBlob;
+    } else {
+      // Fallback: return the XML content if JSZip is not available
+      showToast('JSZip not available', 'Downloading XML theme file instead of .thmx. Install JSZip for full Office compatibility.', 'warn');
+      return themeXml;
+    }
+  } catch (error) {
+    console.error('Error generating Office theme:', error);
+    showToast('Theme generation failed', 'Could not generate Office theme file. Using XML fallback.', 'err');
+    // Return basic XML as fallback
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="Palette Generator Theme">
+  <a:themeElements>
+    <a:clrScheme name="Palette Generator Colors">
+      <a:accent1><a:srgbClr val="${hex(...(t.accents[0] || [0,112,192])).replace('#','')}"/></a:accent1>
+      <a:accent2><a:srgbClr val="${hex(...(t.accents[1] || [112,48,160])).replace('#','')}"/></a:accent2>
+      <a:accent3><a:srgbClr val="${hex(...(t.accents[2] || [255,192,0])).replace('#','')}"/></a:accent3>
+      <a:accent4><a:srgbClr val="${hex(...(t.accents[3] || [255,0,0])).replace('#','')}"/></a:accent4>
+      <a:accent5><a:srgbClr val="${hex(...(t.accents[4] || [112,173,71])).replace('#','')}"/></a:accent5>
+      <a:accent6><a:srgbClr val="${hex(...(t.accents[5] || [0,176,240])).replace('#','')}"/></a:accent6>
+    </a:clrScheme>
+  </a:themeElements>
+</a:theme>`;
+  }
+}
+
 function toCSS(t){ 
   const vars=[ 
     ['background',hex(...t.background)], 
@@ -1618,7 +1879,30 @@ function download(filename, text){
 }
 
 downloadPBIBtn.addEventListener('click', ()=> theme && download('palette-powerbi.json', toPowerBITheme(theme)) );
-downloadOfficeBtn.addEventListener('click', ()=> theme && download('office-theme.thmx', toOfficeTheme(theme)) );
+downloadOfficeBtn.addEventListener('click', async ()=> {
+  if (theme) {
+    try {
+      const result = await toOfficeThemeEnhanced(theme);
+      if (result instanceof Blob) {
+        // It's a ZIP blob, download it directly
+        const url = URL.createObjectURL(result);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'office-theme.thmx';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Office theme downloaded', 'Excel-compatible .thmx file created successfully!', 'ok');
+      } else {
+        // It's XML, use the old download method
+        download('office-theme.xml', result);
+        showToast('XML theme downloaded', 'Downloaded XML theme file. For Excel compatibility, ensure JSZip is loaded.', 'warn');
+      }
+    } catch (error) {
+      console.error('Error downloading Office theme:', error);
+      showToast('Download failed', 'Could not generate Office theme file.', 'err');
+    }
+  }
+});
 downloadCSSBtn.addEventListener('click', ()=> theme && download('palette.css', toCSS(theme)) );
 downloadTailwindBtn.addEventListener('click', ()=> theme && download('tailwind-colors.js', toTailwindConfig(theme)) );
 downloadFigmaBtn.addEventListener('click', ()=> theme && download('figma-tokens.json', toFigmaTokens(theme)) );
@@ -1635,7 +1919,17 @@ dlBothBtn.addEventListener('click', ()=>{
     modeSel.value=m; 
     recalcTheme(); 
     download(`palette-${m}-powerbi.json`, toPowerBITheme(theme)); 
-    download(`palette-${m}-office.thmx`, toOfficeTheme(theme)); 
+    const officeResult = await toOfficeThemeEnhanced(theme);
+    if (officeResult instanceof Blob) {
+      const url = URL.createObjectURL(officeResult);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `palette-${m}-office.thmx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      download(`palette-${m}-office.xml`, officeResult);
+    }
   }
   modeSel.value=prevMode; 
   recalcTheme();

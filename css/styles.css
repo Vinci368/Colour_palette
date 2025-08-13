@@ -1367,3 +1367,16 @@ html {
   --info-text: #1d4ed8;
   --info-text-muted: #2563eb;
 }
+
+/* Success colors for Excel compatibility note */
+:root {
+  --success-bg: #064e3b;
+  --success-border: #059669;
+  --success-text: #6ee7b7;
+}
+
+[data-theme="light"] {
+  --success-bg: #ecfdf5;
+  --success-border: #10b981;
+  --success-text: #065f46;
+}

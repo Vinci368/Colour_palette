@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Palette Generator — Image → Color Palette → Harmonies → Office & Power BI Themes</title>
   <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 <header>
@@ -75,6 +76,13 @@
         </div>
         <div style="margin-top:12px; text-align:center;">
           <button class="btn ghost" id="sampleBtn" style="width:100%;">Use Default Sample Image</button>
+        </div>
+      </div>
+
+      <!-- Excel Compatibility Note -->
+      <div class="excel-info" style="margin-top:16px; padding:12px; background:var(--success-bg, #064e3b); border-radius:6px; border:1px solid var(--success-border, #059669);">
+        <div style="color:var(--success-text, #6ee7b7); font-size:13px; line-height:1.4;">
+          <strong>✨ Excel Compatibility Fixed!</strong> Office themes now generate proper .thmx files that work in both Word and Excel.
         </div>
       </div>
 
@@ -210,7 +218,7 @@
 
       <div class="grid" style="margin-top:16px">
         <button class="btn ok" id="downloadPBI" disabled>Power BI Theme (.json)</button>
-        <button class="btn" id="downloadOffice" disabled>Office Theme (.thmx)</button>
+        <button class="btn" id="downloadOffice" disabled>Office Theme (.thmx) - Excel Compatible</button>
         <button class="btn warn" id="downloadCSS" disabled>CSS Variables (.css)</button>
         <button class="btn" id="downloadTailwind" disabled>Tailwind Config (.js)</button>
       </div>
