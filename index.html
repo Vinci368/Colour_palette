@@ -86,6 +86,26 @@
         </div>
       </div>
 
+      <!-- THMX Theme Import Section -->
+      <div class="thmx-import-section" style="margin-top:16px; padding:16px; background:var(--card-bg, #1e293b); border-radius:8px; border:1px solid var(--border, #334155);">
+        <h4 style="margin:0 0 12px 0; color:var(--text, #e2e8f0); font-size:14px; font-weight:600;">
+          🎨 Import Office Theme (.thmx)
+        </h4>
+        <div class="hint" style="margin-bottom:12px; color:var(--text-muted, #94a3b8); font-size:13px; line-height:1.5;">
+          Upload an existing Office theme file to load its colors into the palette generator.
+        </div>
+        <div class="thmx-upload-area" id="thmxDrop" style="padding:16px; border:2px dashed var(--border, #334155); border-radius:6px; text-align:center; cursor:pointer; transition:all 0.2s;">
+          <div style="font-weight:600; margin-bottom:8px; color:var(--text, #e2e8f0);">
+            Drop .thmx file here or click to browse
+          </div>
+          <div class="hint" style="color:var(--text-muted, #94a3b8); font-size:12px;">
+            Supports Office 2007+ theme files (.thmx)
+          </div>
+        </div>
+        <input id="thmxFile" type="file" accept=".thmx" hidden>
+        <div id="thmxStatus" style="margin-top:12px; font-size:13px;"></div>
+      </div>
+
       <!-- Corporate Environment Information -->
       <div class="corporate-info" style="margin-top:16px; padding:16px; background:var(--info-bg, #0f172a); border-radius:8px; border:1px solid var(--info-border, #1e40af);">
         <h4 style="margin:0 0 12px 0; color:var(--info-text, #60a5fa); font-size:14px; font-weight:600;">
@@ -219,6 +239,7 @@
       <div class="grid" style="margin-top:16px">
         <button class="btn ok" id="downloadPBI" disabled>Power BI Theme (.json)</button>
         <button class="btn" id="downloadOffice" disabled>Office Theme (.thmx) - Excel Compatible</button>
+        <button class="btn" id="downloadExcel" disabled>Color Palette (.html) - Visual Preview</button>
         <button class="btn warn" id="downloadCSS" disabled>CSS Variables (.css)</button>
         <button class="btn" id="downloadTailwind" disabled>Tailwind Config (.js)</button>
       </div>
@@ -249,7 +270,12 @@
       </div>
       <div id="testResults" class="tests" style="margin-top:8px"></div>
 
-      <p class="hint" style="margin-top:14px">Power BI uses the accent colors for visuals, with background and text set by the selected mode. Office XML provides a color scheme for Excel, PowerPoint and Word. A full .thmx package is out of scope here, but can be added.</p>
+      <p class="hint" style="margin-top:14px">
+        <strong>Export Options:</strong><br>
+        • <strong>Office Theme (.thmx):</strong> Theme file that can be imported into Excel (may require manual setup)<br>
+        • <strong>Color Palette (.html):</strong> Visual preview with all colors and codes (recommended for easy viewing)<br><br>
+        Power BI uses the accent colors for visuals, with background and text set by the selected mode.
+      </p>
     </div>
   </aside>
 </main>

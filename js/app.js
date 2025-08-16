@@ -1219,9 +1219,10 @@ const rolesEl=$('#roles');
 const modeSel=$('#mode'); 
 const bgStrengthSel=$('#bgStrength'); 
 const previewEl=$('#preview');
-const downloadPBIBtn=$('#downloadPBI'); 
-const downloadOfficeBtn=$('#downloadOffice'); 
-const downloadCSSBtn=$('#downloadCSS'); 
+const downloadPBIBtn=$('#downloadPBI');
+const downloadOfficeBtn=$('#downloadOffice');
+const downloadExcelBtn=$('#downloadExcel');
+const downloadCSSBtn=$('#downloadCSS');
 const downloadTailwindBtn=$('#downloadTailwind');
 const downloadFigmaBtn=$('#downloadFigma');
 const downloadSketchBtn=$('#downloadSketch');
@@ -1514,7 +1515,14 @@ function toOfficeTheme(t){
 // Enhanced Office theme generator that creates a proper .thmx file
 async function toOfficeThemeEnhanced(t) {
   try {
-    // Create the main theme XML
+    console.log('Generating THMX with theme:', {
+      background: t.background,
+      foreground: t.foreground,
+      accents: t.accents,
+      hyperlink: t.hyperlink,
+      followed: t.followed
+    });
+    // Create the main theme XML - Excel-compatible structure
     const themeXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="Palette Generator Theme">
   <a:themeElements>
@@ -1715,13 +1723,13 @@ async function toOfficeThemeEnhanced(t) {
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="xml" ContentType="application/xml"/>
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Override PartName="/theme/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>
+  <Override PartName="/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>
 </Types>`;
 
     // Create the _rels/.rels file
     const relsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="theme/theme/theme1.xml"/>
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="theme/theme1.xml"/>
 </Relationships>`;
 
     // Create the theme/_rels/theme1.xml.rels file
@@ -1735,17 +1743,24 @@ async function toOfficeThemeEnhanced(t) {
       const zip = new JSZip();
       
       // Add the main theme file
-      zip.file("theme/theme/theme1.xml", themeXml);
+      zip.file("theme/theme1.xml", themeXml);
       
       // Add content types
       zip.file("[Content_Types].xml", contentTypesXml);
       
       // Add relationships
       zip.file("_rels/.rels", relsXml);
-      zip.file("theme/theme/_rels/theme1.xml.rels", themeRelsXml);
+      zip.file("theme/_rels/theme1.xml.rels", themeRelsXml);
       
       // Generate the ZIP file
       const zipBlob = await zip.generateAsync({type: "blob"});
+      console.log('Generated THMX file structure:', {
+        themeXml: themeXml.substring(0, 500) + '...',
+        contentTypesXml,
+        relsXml,
+        themeRelsXml,
+        zipSize: zipBlob.size
+      });
       return zipBlob;
     } else {
       // Fallback: return the XML content if JSZip is not available
@@ -1852,9 +1867,133 @@ function toSketchColors(t) {
   return JSON.stringify(colors, null, 2);
 }
 
+// Create a simple CSV file that Excel can open with colors
+async function toExcelTemplate(t) {
+  try {
+    console.log('Generating Excel template with theme:', t);
+    
+    // Create a simple CSV file that Excel can open
+    const csvContent = `Color Name,Hex Code,RGB Values,Preview
+Background,${hex(...t.background)},${t.background.join(', ')},${hex(...t.background)}
+Accent 1,${hex(...(t.accents[0] || [0,112,192]))},${(t.accents[0] || [0,112,192]).join(', ')},${hex(...(t.accents[0] || [0,112,192]))}
+Accent 2,${hex(...(t.accents[1] || [112,48,160]))},${(t.accents[1] || [112,48,160]).join(', ')},${hex(...(t.accents[1] || [112,48,160]))}
+Accent 3,${hex(...(t.accents[2] || [255,192,0]))},${(t.accents[2] || [255,192,0]).join(', ')},${hex(...(t.accents[2] || [255,192,0]))}
+Accent 4,${hex(...(t.accents[3] || [255,0,0]))},${(t.accents[3] || [255,0,0]).join(', ')},${hex(...(t.accents[3] || [255,0,0]))}
+Accent 5,${hex(...(t.accents[4] || [112,173,71]))},${(t.accents[4] || [112,173,71]).join(', ')},${hex(...(t.accents[4] || [112,173,71]))}
+Accent 6,${hex(...(t.accents[5] || [0,176,240]))},${(t.accents[5] || [0,176,240]).join(', ')},${hex(...(t.accents[5] || [0,176,240]))}
+Hyperlink,${hex(...t.hyperlink)},${t.hyperlink.join(', ')},${hex(...t.hyperlink)}
+Followed Link,${hex(...t.followed)},${t.followed.join(', ')},${hex(...t.followed)}
+Foreground,${hex(...t.foreground)},${t.foreground.join(', ')},${hex(...t.foreground)}`;
+
+    // Create a simple HTML file that Excel can open and will show colors
+    const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+  <title>Palette Generator Colors</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .color-row { display: flex; align-items: center; margin: 10px 0; }
+    .color-preview { width: 50px; height: 30px; border: 1px solid #ccc; margin-right: 15px; }
+    .color-info { flex: 1; }
+    .color-name { font-weight: bold; margin-bottom: 5px; }
+    .color-codes { font-family: monospace; font-size: 12px; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Palette Generator Theme Colors</h1>
+  <div class="color-row">
+    <div class="color-preview" style="background-color: ${hex(...t.background)}"></div>
+    <div class="color-info">
+      <div class="color-name">Background</div>
+      <div class="color-codes">${hex(...t.background)} | RGB(${t.background.join(', ')})</div>
+    </div>
+  </div>
+  <div class="color-row">
+    <div class="color-preview" style="background-color: ${hex(...(t.accents[0] || [0,112,192]))}"></div>
+    <div class="color-info">
+      <div class="color-name">Accent 1</div>
+      <div class="color-codes">${hex(...(t.accents[0] || [0,112,192]))} | RGB(${(t.accents[0] || [0,112,192]).join(', ')})</div>
+    </div>
+  </div>
+  <div class="color-row">
+    <div class="color-preview" style="background-color: ${hex(...(t.accents[1] || [112,48,160]))}"></div>
+    <div class="color-info">
+      <div class="color-name">Accent 2</div>
+      <div class="color-codes">${hex(...(t.accents[1] || [112,48,160]))} | RGB(${(t.accents[1] || [112,48,160]).join(', ')})</div>
+    </div>
+  </div>
+  <div class="color-row">
+    <div class="color-preview" style="background-color: ${hex(...(t.accents[2] || [255,192,0]))}"></div>
+    <div class="color-info">
+      <div class="color-name">Accent 3</div>
+      <div class="color-codes">${hex(...(t.accents[2] || [255,192,0]))} | RGB(${(t.accents[2] || [255,192,0]).join(', ')})</div>
+    </div>
+  </div>
+  <div class="color-row">
+    <div class="color-preview" style="background-color: ${hex(...(t.accents[3] || [255,0,0]))}"></div>
+    <div class="color-info">
+      <div class="color-name">Accent 4</div>
+      <div class="color-codes">${hex(...(t.accents[3] || [255,0,0]))} | RGB(${(t.accents[3] || [255,0,0]).join(', ')})</div>
+    </div>
+  </div>
+  <div class="color-row">
+    <div class="color-preview" style="background-color: ${hex(...(t.accents[4] || [112,173,71]))}"></div>
+    <div class="color-info">
+      <div class="color-name">Accent 5</div>
+      <div class="color-codes">${hex(...(t.accents[4] || [112,173,71]))} | RGB(${(t.accents[4] || [112,173,71]).join(', ')})</div>
+    </div>
+  </div>
+  <div class="color-row">
+    <div class="color-preview" style="background-color: ${hex(...(t.accents[5] || [0,176,240]))}"></div>
+    <div class="color-info">
+      <div class="color-name">Accent 6</div>
+      <div class="color-codes">${hex(...(t.accents[5] || [0,176,240]))} | RGB(${(t.accents[5] || [0,176,240]).join(', ')})</div>
+    </div>
+  </div>
+  <div class="color-row">
+    <div class="color-preview" style="background-color: ${hex(...t.hyperlink)}"></div>
+    <div class="color-info">
+      <div class="color-name">Hyperlink</div>
+      <div class="color-codes">${hex(...t.hyperlink)} | RGB(${t.hyperlink.join(', ')})</div>
+    </div>
+  </div>
+  <div class="color-row">
+    <div class="color-preview" style="background-color: ${hex(...t.followed)}"></div>
+    <div class="color-info">
+      <div class="color-name">Followed Link</div>
+      <div class="color-codes">${hex(...t.followed)} | RGB(${t.followed.join(', ')})</div>
+    </div>
+  </div>
+  <div class="color-row">
+    <div class="color-preview" style="background-color: ${hex(...t.foreground)}"></div>
+    <div class="color-info">
+      <div class="color-name">Foreground</div>
+      <div class="color-codes">${hex(...t.foreground)} | RGB(${t.foreground.join(', ')})</div>
+    </div>
+  </div>
+  <hr style="margin: 30px 0;">
+  <p><strong>Instructions:</strong></p>
+  <ul>
+    <li>You can copy these hex codes directly into Excel</li>
+    <li>Use Format → Cells → Fill → More Colors → Custom to apply these colors</li>
+    <li>Or use the RGB values for more precise color control</li>
+  </ul>
+</body>
+</html>`;
+
+    // Return the HTML content as a blob
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    return blob;
+  } catch (error) {
+    console.error('Error generating Excel template:', error);
+    throw error;
+  }
+}
+
 function enableExports(on){ 
   downloadPBIBtn.disabled = !on; 
   downloadOfficeBtn.disabled = !on; 
+  downloadExcelBtn.disabled = !on; 
   downloadCSSBtn.disabled = !on; 
   downloadTailwindBtn.disabled = !on;
   downloadFigmaBtn.disabled = !on;
@@ -1899,7 +2038,24 @@ downloadOfficeBtn.addEventListener('click', async ()=> {
       }
     } catch (error) {
       console.error('Error downloading Office theme:', error);
-      showToast('Download failed', 'Could not generate Office theme file.', 'err');
+        showToast('Download failed', 'Could not generate Office theme file.', 'err');
+    }
+  }
+});
+downloadExcelBtn.addEventListener('click', async ()=> {
+  if (theme) {
+    try {
+      const result = await toExcelTemplate(theme);
+      const url = URL.createObjectURL(result);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'palette-colors.html';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Color palette downloaded', 'HTML file with visual color preview! Open in any browser to see your colors.', 'ok');
+    } catch (error) {
+      console.error('Error downloading Excel template:', error);
+      showToast('Download failed', 'Could not generate color palette file.', 'err');
     }
   }
 });
